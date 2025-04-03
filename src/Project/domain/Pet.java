@@ -1,5 +1,10 @@
 package Project.domain;
 
+import Project.domain.Constante.Indefinido;
+import Project.domain.Enum.SexoPet;
+import Project.domain.Enum.TipoPet;
+import Project.domain.Excecoes.NomeInvalidoException;
+
 public class Pet {
     private String nome;
     private String sobrenome;
