@@ -10,6 +10,7 @@ import Project.domain.Excecoes.PesoInvalido;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.util.Scanner;
 
 public class Test01 {
@@ -27,19 +28,17 @@ public class Test01 {
             System.out.println("6. Sair");
             System.out.println("=================================");
             System.out.print("Digite a Opção: ");
-            if (scanner.hasNextInt()){
+            if (scanner.hasNextInt()) {
                 option = scanner.nextInt();
                 scanner.nextLine();
-                if (option >=1 && option <=6){
+                if (option >= 1 && option <= 6) {
                     break;
                 } else {
                     System.out.println("Opção Inválida! Por favor tente novamente.");
-                    try {
-                        Thread.sleep(3000);
-                    } catch (InterruptedException e){
-                        e.printStackTrace();
-                    }
                 }
+            } else {
+                System.out.println("Entrada Inválida! Por favor digite apenas números de 1 a 6");
+                scanner.nextLine();
             }
         }
         if (option == 1){
@@ -59,7 +58,7 @@ public class Test01 {
                     switch(contador) {
                         case 1:{
                             System.out.println(linha);
-                            respostaNome = scanner.nextLine().trim();
+                            respostaNome = scanner.nextLine();
                             if (respostaNome.isEmpty()){
                                 respostaNome = Indefinido.NOME;
                             }
@@ -103,15 +102,12 @@ public class Test01 {
                             String cidadePet = scanner.nextLine();
                             System.out.print("Rua: ");
                             String ruaPet = scanner.nextLine();
-                            respostaBairro = String.valueOf(sb.append(numeroCasa).append(" ").append(cidadePet).append(" ").append(ruaPet));
+                            respostaBairro = String.valueOf(sb.append(ruaPet).append(", ").append(numeroCasa).append(", ").append(cidadePet));
                             break;
                         } case 5: {
                             System.out.println(linha);
-                            Integer idadeInput = scanner.nextInt();
+                            int idadeInput = scanner.nextInt();
                             scanner.nextLine();
-                            if (idadeInput == null){
-                                respostaIdade = Indefinido.IDADE;
-                            }
                             if (idadeInput > 20){
                                 throw new IdadeInvalida("Idade Inválida!");
                             }
@@ -120,7 +116,6 @@ public class Test01 {
                             } else {
                                 respostaIdade = idadeInput;
                             }
-                            scanner.nextLine();
                             break;
                         } case 6: {
                             System.out.println(linha);
@@ -154,13 +149,42 @@ public class Test01 {
                     contador++;
                 }
                 Pet pet = new Pet(respostaNome, respostaSobrenome, respostaTipo, respostaSexo, respostaBairro, respostaIdade, respostaPeso, respostaRaca);
-                pet.exibirInfo();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         if (option == 2){
+            System.out.println("Selecione o Tipo do Animal: ");
+            for (TipoPet tipo : TipoPet.values()){
+                System.out.println("- "+ tipo.name());
+            }
+            TipoPet tipoSelecionado;
+            while(true){
+                try {
+                    tipoSelecionado = TipoPet.valueOf(scanner.nextLine().toUpperCase());
+                    break;
+                } catch (IllegalArgumentException e){
+                    System.out.println("Tipo Inválido. Tente novamente!");
+                }
+            }
+            System.out.println("Escolha os critérios para busca:");
+            System.out.println("1. Nome");
+            System.out.println("2. Sobrenome");
+            System.out.println("3. Sexo");
+            System.out.println("4. Idade");
+            System.out.println("5. Peso");
+            System.out.println("6. Raça");
+            System.out.println("7. Endereço");
 
+            System.out.println("Digite o número do Primeiro Critério: ");
+            int opt1 = scanner.nextInt();
+            System.out.println("Deseja informar um Segundo Critério (S/N)?");
+            boolean segundo = scanner.nextLine().equalsIgnoreCase("s");
+            int opt2 = -1;
+            if (segundo){
+                System.out.println("Digite o número do Segundo Critério: ");
+                opt2 = scanner.nextInt();
+            }
         }
         if (option == 3){
 

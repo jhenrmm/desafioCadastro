@@ -1,9 +1,16 @@
 package Project.domain;
 
-import Project.domain.Constante.Indefinido;
 import Project.domain.Enum.SexoPet;
 import Project.domain.Enum.TipoPet;
 import Project.domain.Excecoes.NomeInvalidoException;
+
+import javax.imageio.spi.IIOServiceProvider;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class Pet {
     private String nome;
@@ -43,15 +50,9 @@ public class Pet {
         return nome != null && nome.matches("^[A-Za-zÀ-ÖØ-öø-ÿ]+$");
     }
 
-    public Pet(String nome, String sobrenome, TipoPet tipo, SexoPet sexo, String bairro, int idade, double peso, String raca) throws NomeInvalidoException {
+    public Pet(String nome, String sobrenome, TipoPet tipo, SexoPet sexo, String bairro, int idade, double peso, String raca) throws NomeInvalidoException, IOException {
         if (sobrenome == null || sobrenome.isEmpty()){
             throw new NomeInvalidoException("O animal deve ter um Sobrenome.");
-        }
-        if (!isNomeValido(nome)){
-            System.out.println("Nome com Números ou Carácteres Inválidos.");
-        }
-        if (!isNomeValido(sobrenome)){
-            System.out.println("Sobrenome com Números ou Carácteres Inválidos.");
         }
 
         this.nome = nome;
@@ -62,18 +63,29 @@ public class Pet {
         this.idade = idade;
         this.peso = peso;
         this.raca = raca;
-    }
-
-    public void exibirInfo(){
-        System.out.println("==============================");
-        System.out.println("Nome: "+nome);
-        System.out.println("Sobrenome: "+sobrenome);
-        System.out.println("Tipo: "+tipo);
-        System.out.println("Sexo: "+sexo);
-        System.out.println("Bairro: "+bairro);
-        System.out.println("Idade: "+idade);
-        System.out.println("Peso: "+peso);
-        System.out.println("Raça: "+raca);
-        System.out.println("==============================");
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmm");
+        String dataHoraFormatada = now.format(formatter);
+        String nomeArquivo = dataHoraFormatada+"-"+nome.toUpperCase().concat(sobrenome.toUpperCase().replaceAll(" ",""))+".txt";
+        File filePet = new File("C:\\Users\\João Henrique\\IdeaProjects\\desafioCadastro\\src\\Project\\petsCadastrados\\"+ nomeArquivo);
+        FileWriter fw = new FileWriter(filePet, true);
+        try (BufferedWriter bw = new BufferedWriter(fw)) {
+            bw.write("1 - " + nome + sobrenome);
+            bw.newLine();
+            bw.write("2 - " + tipo);
+            bw.newLine();
+            bw.write("3 - " + sexo);
+            bw.newLine();
+            bw.write("4 - Rua " + bairro);
+            bw.newLine();
+            bw.write("5 - " + idade + " anos");
+            bw.newLine();
+            bw.write("6 - " + peso + "kg");
+            bw.newLine();
+            bw.write("7 - " + raca);
+            bw.newLine();
+        } catch (IOException e){
+            System.out.println("Erro ao escrever Arquivo");
+        }
     }
 }
