@@ -4,13 +4,11 @@ import Project.domain.Enum.SexoPet;
 import Project.domain.Enum.TipoPet;
 import Project.domain.Excecoes.NomeInvalidoException;
 
-import javax.imageio.spi.IIOServiceProvider;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Pet {
     private String nome;
@@ -21,6 +19,110 @@ public class Pet {
     private int idade;
     private double peso;
     private String raca;
+
+    public void setTipo(TipoPet tipo) {
+        this.tipo = tipo;
+    }
+
+    public void setSexo(SexoPet sexo) {
+        this.sexo = sexo;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public String getSobrenome() {
+        return sobrenome;
+    }
+
+    public TipoPet getTipo() {
+        return tipo;
+    }
+
+    public SexoPet getSexo() {
+        return sexo;
+    }
+
+    public String getBairro() {
+        return bairro;
+    }
+
+    public int getIdade() {
+        return idade;
+    }
+
+    public double getPeso() {
+        return peso;
+    }
+
+    public String getRaca() {
+        return raca;
+    }
+    public static List<Pet> lerPetsDoArquivo(String pastaPath) {
+        List<Pet> pets = new ArrayList<>();
+        File pasta = new File(pastaPath);
+
+        if (!pasta.exists() || !pasta.isDirectory()) {
+            System.out.println("Pasta não encontrada ou inválida.");
+            return pets;
+        }
+
+        File[] arquivos = pasta.listFiles((dir, name) -> name.toLowerCase().endsWith(".txt"));
+
+        if (arquivos == null || arquivos.length == 0) {
+            System.out.println("Nenhum arquivo .txt encontrado na pasta.");
+            return pets;
+        }
+
+        for (File arquivo : arquivos) {
+            try (BufferedReader br = new BufferedReader(new FileReader(arquivo))) {
+                String nome = br.readLine();
+                String sobrenome = br.readLine();
+                TipoPet tipo = TipoPet.valueOf(br.readLine().toUpperCase());
+                SexoPet sexo = SexoPet.valueOf(br.readLine().toUpperCase());
+                String bairro = br.readLine();
+                int idade = Integer.parseInt(br.readLine());
+                double peso = Double.parseDouble(br.readLine());
+                String raca = br.readLine();
+
+                Pet pet = new Pet(nome, sobrenome, tipo, sexo, bairro, idade, peso, raca);
+                pets.add(pet);
+
+            } catch (Exception e) {
+                System.out.println("Erro ao ler arquivo " + arquivo.getName() + ": " + e.getMessage());
+            }
+        }
+
+        return pets;
+    }
+
+    public String resumo() {
+        return String.format("%s %s (%s, %d anos, %.2fkg) - Raça: %s - Endereço: %s",
+                this.nome, this.sobrenome, this.sexo, this.idade, this.peso, this.raca, this.bairro);
+    }
+
+    public static void salvarPetsNoArquivo(String caminho, List<Pet> pets) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(caminho))) {
+            for (Pet p : pets) {
+                String linha = String.join(";",
+                        p.getNome(),
+                        p.getSobrenome(),
+                        p.getTipo().name(),
+                        p.getSexo().name(),
+                        p.getBairro(),
+                        String.valueOf(p.getIdade()),
+                        String.valueOf(p.getPeso()),
+                        p.getRaca()
+                );
+                bw.write(linha);
+                bw.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar o arquivo: " + e.getMessage());
+        }
+    }
+
 
     public void setNome(String nome) {
         this.nome = nome;

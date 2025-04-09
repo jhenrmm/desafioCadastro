@@ -6,11 +6,15 @@ import Project.domain.Enum.TipoPet;
 import Project.domain.Excecoes.IdadeInvalida;
 import Project.domain.Excecoes.NomeInvalidoException;
 import Project.domain.Excecoes.PesoInvalido;
+import jdk.jshell.execution.Util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.SQLOutput;
+import java.sql.Array;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Test01 {
@@ -18,7 +22,7 @@ public class Test01 {
         Scanner scanner = new Scanner(System.in);
         StringBuilder sb = new StringBuilder();
         int option;
-        while (true){
+        while (true) {
             System.out.println("=================================");
             System.out.println("1. Cadastrar um novo pet");
             System.out.println("2. Alterar os dados do pet cadastrado");
@@ -41,7 +45,7 @@ public class Test01 {
                 scanner.nextLine();
             }
         }
-        if (option == 1){
+        if (option == 1) {
             String respostaNome = "";
             String respostaSobrenome = "";
             TipoPet respostaTipo = null;
@@ -55,47 +59,50 @@ public class Test01 {
                 String linha;
                 int contador = 1;
                 while ((linha = br.readLine()) != null) {
-                    switch(contador) {
-                        case 1:{
+                    switch (contador) {
+                        case 1: {
                             System.out.println(linha);
                             respostaNome = scanner.nextLine();
-                            if (respostaNome.isEmpty()){
+                            if (respostaNome.isEmpty()) {
                                 respostaNome = Indefinido.NOME;
                             }
                             String[] partes = respostaNome.split(" ", 2);
                             respostaNome = partes[0];
                             respostaSobrenome = (partes.length > 1) ? partes[1] : Indefinido.SOBRENOME;
                             break;
-                        } case 2: {
-                            while (true){
+                        }
+                        case 2: {
+                            while (true) {
                                 try {
                                     System.out.println(linha);
                                     respostaTipo = TipoPet.valueOf(scanner.next().toUpperCase());
                                     break;
-                                } catch (IllegalArgumentException e){
+                                } catch (IllegalArgumentException e) {
                                     System.err.println("Opção Inválida");
                                     scanner.nextLine();
                                 }
                             }
                             break;
-                        } case 3: {
-                            while (true){
+                        }
+                        case 3: {
+                            while (true) {
                                 try {
                                     System.out.println(linha);
                                     respostaSexo = SexoPet.valueOf(scanner.next().toUpperCase());
                                     break;
-                                } catch (IllegalArgumentException e){
+                                } catch (IllegalArgumentException e) {
                                     System.err.println("Opção Inválida");
                                     scanner.nextLine();
                                 }
                             }
                             break;
-                        } case 4: {
+                        }
+                        case 4: {
                             System.out.println(linha);
                             System.out.print("Número da Casa: ");
                             Integer numeroCasa = scanner.nextInt();
                             scanner.nextLine();
-                            if (numeroCasa == null){
+                            if (numeroCasa == null) {
                                 numeroCasa = Indefinido.NUMERO_ENDERECO;
                             }
                             System.out.print("Cidade: ");
@@ -104,20 +111,22 @@ public class Test01 {
                             String ruaPet = scanner.nextLine();
                             respostaBairro = String.valueOf(sb.append(ruaPet).append(", ").append(numeroCasa).append(", ").append(cidadePet));
                             break;
-                        } case 5: {
+                        }
+                        case 5: {
                             System.out.println(linha);
                             int idadeInput = scanner.nextInt();
                             scanner.nextLine();
-                            if (idadeInput > 20){
+                            if (idadeInput > 20) {
                                 throw new IdadeInvalida("Idade Inválida!");
                             }
-                            if (idadeInput < 1){
-                                respostaIdade = idadeInput * 12;
+                            if (idadeInput < 1) {
+                                respostaIdade = idadeInput / 12;
                             } else {
                                 respostaIdade = idadeInput;
                             }
                             break;
-                        } case 6: {
+                        }
+                        case 6: {
                             System.out.println(linha);
                             String pesoInput = scanner.nextLine().replace(",", ".");
                             if (pesoInput.isEmpty()) {
@@ -125,7 +134,7 @@ public class Test01 {
                             }
                             try {
                                 respostaPeso = Double.parseDouble(pesoInput);
-                                if (respostaPeso > 60 || respostaPeso < 0.5){
+                                if (respostaPeso > 60 || respostaPeso < 0.5) {
                                     throw new PesoInvalido("Peso Inválido!");
                                 }
                             } catch (NumberFormatException e) {
@@ -133,13 +142,14 @@ public class Test01 {
                                 contador--;
                             }
                             break;
-                        } case 7: {
+                        }
+                        case 7: {
                             System.out.println(linha);
                             respostaRaca = scanner.next();
-                            if (respostaRaca.isEmpty()){
+                            if (respostaRaca.isEmpty()) {
                                 respostaRaca = Indefinido.RACA;
                             }
-                            if (!respostaRaca.matches("^[A-Za-zÀ-ÖØ-öø-ÿ]+$")){
+                            if (!respostaRaca.matches("^[A-Za-zÀ-ÖØ-öø-ÿ]+$")) {
                                 System.out.println("Caracteres Inválidos! Tente Novamente");
                                 contador--;
                             }
@@ -153,51 +163,124 @@ public class Test01 {
                 e.printStackTrace();
             }
         }
-        if (option == 2){
-            System.out.println("Selecione o Tipo do Animal: ");
-            for (TipoPet tipo : TipoPet.values()){
-                System.out.println("- "+ tipo.name());
+        if (option == 2) {
+            List<Pet> pets = Pet.lerPetsDoArquivo("src/Project/petsCadastrados");
+
+            System.out.println("Digite o tipo do pet:");
+            for (TipoPet tipo : TipoPet.values()) {
+                System.out.println("- " + tipo.name());
             }
+
             TipoPet tipoSelecionado;
-            while(true){
+            while (true) {
                 try {
                     tipoSelecionado = TipoPet.valueOf(scanner.nextLine().toUpperCase());
                     break;
-                } catch (IllegalArgumentException e){
-                    System.out.println("Tipo Inválido. Tente novamente!");
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Tipo inválido. Tente novamente:");
                 }
             }
-            System.out.println("Escolha os critérios para busca:");
-            System.out.println("1. Nome");
-            System.out.println("2. Sobrenome");
-            System.out.println("3. Sexo");
-            System.out.println("4. Idade");
-            System.out.println("5. Peso");
-            System.out.println("6. Raça");
-            System.out.println("7. Endereço");
 
-            System.out.println("Digite o número do Primeiro Critério: ");
-            int opt1 = scanner.nextInt();
-            System.out.println("Deseja informar um Segundo Critério (S/N)?");
-            boolean segundo = scanner.nextLine().equalsIgnoreCase("s");
-            int opt2 = -1;
-            if (segundo){
-                System.out.println("Digite o número do Segundo Critério: ");
-                opt2 = scanner.nextInt();
+            List<Pet> petsDoTipo = new ArrayList<>();
+            for (Pet p : pets) {
+                if (p.getTipo().equals(tipoSelecionado)) {
+                    petsDoTipo.add(p);
+                }
             }
-        }
-        if (option == 3){
 
-        }
-        if (option == 4){
+            if (petsDoTipo.isEmpty()) {
+                System.out.println("Nenhum pet do tipo selecionado foi encontrado.");
+                return;
+            }
 
-        }
-        if (option == 5){
+            System.out.println("Pets encontrados:");
+            for (int i = 0; i < petsDoTipo.size(); i++) {
+                System.out.println("[" + i + "] " + petsDoTipo.get(i).resumo());
+            }
 
-        }
-        if (option == 6){
+            System.out.print("Digite o índice do pet que deseja alterar: ");
+            int indice = scanner.nextInt();
+            scanner.nextLine();
+            if (indice < 0 || indice >= petsDoTipo.size()) {
+                System.out.println("Índice inválido.");
+                return;
+            }
 
+            Pet petSelecionado = petsDoTipo.get(indice);
+
+            System.out.println("Qual campo deseja alterar?");
+            System.out.println("1. Nome");
+            System.out.println("2. Sexo");
+            System.out.println("3. Idade");
+            System.out.println("4. Peso");
+            System.out.println("5. Raça");
+            System.out.println("6. Endereço");
+
+            int campo = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (campo) {
+                case 1:
+                    System.out.print("Novo nome: ");
+                    String nome = scanner.nextLine();
+                    petSelecionado.setNome(nome);
+                    break;
+                case 2:
+                    System.out.print("Novo sexo (MACHO/FEMEA): ");
+                    SexoPet sexo = SexoPet.valueOf(scanner.nextLine().toUpperCase());
+                    petSelecionado.setSexo(sexo);
+                    break;
+                case 3:
+                    System.out.print("Nova idade: ");
+                    int idade = scanner.nextInt();
+                    scanner.nextLine();
+                    petSelecionado.setIdade(idade);
+                    break;
+                case 4:
+                    System.out.print("Novo peso: ");
+                    double peso = scanner.nextDouble();
+                    scanner.nextLine();
+                    petSelecionado.setPeso(peso);
+                    break;
+                case 5:
+                    System.out.print("Nova raça: ");
+                    String raca = scanner.nextLine();
+                    petSelecionado.setRaca(raca);
+                    break;
+                case 6:
+                    System.out.print("Novo endereço: ");
+                    String endereco = scanner.nextLine();
+                    petSelecionado.setBairro(endereco);
+                    break;
+                default:
+                    System.out.println("Campo inválido.");
+                    return;
+            }
+
+            int indexOriginal = pets.indexOf(petsDoTipo.get(indice));
+            pets.set(indexOriginal, petSelecionado);
+
+            Pet.salvarPetsNoArquivo("src/Project/petsCadastrados", pets);
+
+            System.out.println("Pet atualizado com sucesso!");
         }
+
+        // Opções 3 a 6 ainda não implementadas...
+
+        scanner.close();
+
+    if(option ==3) {
+
+    }
+        if(option ==4) {
+
+    }
+        if(option ==5) {
+
+    }
+        if(option ==6) {
+
+    }
         scanner.close();
     }
 }
