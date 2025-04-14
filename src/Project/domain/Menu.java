@@ -10,6 +10,7 @@ import Project.domain.Excecoes.PesoInvalido;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 import java.util.Scanner;
 
 public class Menu {
@@ -153,7 +154,8 @@ public class Menu {
                 }
                 contador++;
             }
-            return new Pet(respostaNome, respostaSobrenome, respostaTipo, respostaSexo, respostaBairro, respostaIdade, respostaPeso, respostaRaca);
+            Pet novoPet = new Pet(respostaNome, respostaSobrenome, respostaTipo, respostaSexo, respostaBairro, respostaIdade, respostaPeso, respostaRaca);
+            novoPet.salvarEmArquivo("C:\\Users\\João Henrique\\IdeaProjects\\desafioCadastro\\src\\Project\\petsCadastrados");
         } catch (IOException e) {
             e.printStackTrace();
         } catch (NomeInvalidoException e) {
@@ -162,6 +164,116 @@ public class Menu {
         return null;
     }
     public static void buscarPet() {
+        Scanner scanner = new Scanner(System.in);
+        int tipoAnimal;
+        int criterio1;
+        int criterio2 = 0;
+
+        // Menu tipo de animal
+        do {
+            System.out.println("Escolha uma opção: ");
+            System.out.println("1 - Cachorro");
+            System.out.println("2 - Gato");
+            tipoAnimal = scanner.nextInt();
+        } while (tipoAnimal != 1 && tipoAnimal != 2);
+
+        // Menu do primeiro critério
+        do {
+            System.out.println("Quais critérios adicionais deseja usar para buscar o pet?");
+            System.out.println("1 - Nome ou Sobrenome");
+            System.out.println("2 - Sexo");
+            System.out.println("3 - Idade");
+            System.out.println("4 - Peso");
+            System.out.println("5 - Raça");
+            System.out.println("6 - Endereço");
+            criterio1 = scanner.nextInt();
+        } while (criterio1 < 1 || criterio1 > 6);
+
+        scanner.nextLine();
+
+        System.out.println("Deseja um segundo critério de busca? [S/N]");
+        String respostaCriterio = scanner.nextLine().trim();
+        if (respostaCriterio.equalsIgnoreCase("S")) {
+            do {
+                System.out.println("Quais critérios adicionais deseja usar para buscar o pet?");
+                System.out.println("1 - Nome ou Sobrenome");
+                System.out.println("2 - Sexo");
+                System.out.println("3 - Idade");
+                System.out.println("4 - Peso");
+                System.out.println("5 - Raça");
+                System.out.println("6 - Endereço");
+                criterio2 = scanner.nextInt();
+            } while (criterio2 < 1 || criterio2 > 6);
+            scanner.nextLine();
+        }
+
+        // Valores dos critérios
+        String valor1 = "";
+        String valor2 = "";
+
+        if (criterio1 == 1 || criterio2 == 1) {
+            System.out.println("Digite o nome ou sobrenome: ");
+            if (criterio1 == 1) valor1 = scanner.nextLine();
+            else valor2 = scanner.nextLine();
+        }
+
+        if (criterio1 == 2 || criterio2 == 2) {
+            System.out.println("Digite o sexo:");
+            if (criterio1 == 2) valor1 = scanner.nextLine();
+            else valor2 = scanner.nextLine();
+        }
+
+        if (criterio1 == 3 || criterio2 == 3) {
+            System.out.println("Digite a idade:");
+            if (criterio1 == 3) valor1 = scanner.nextLine();
+            else valor2 = scanner.nextLine();
+        }
+
+        if (criterio1 == 4 || criterio2 == 4) {
+            System.out.println("Digite o peso:");
+            if (criterio1 == 4) valor1 = scanner.nextLine();
+            else valor2 = scanner.nextLine();
+        }
+
+        if (criterio1 == 5 || criterio2 == 5) {
+            System.out.println("Digite a raça:");
+            if (criterio1 == 5) valor1 = scanner.nextLine();
+            else valor2 = scanner.nextLine();
+        }
+
+        if (criterio1 == 6 || criterio2 == 6) {
+            System.out.println("Digite o endereço:");
+            if (criterio1 == 6) valor1 = scanner.nextLine();
+            else valor2 = scanner.nextLine();
+        }
+
+        List<Pet> pets = Pet.lerPetsDaPasta("C:\\Users\\João Henrique\\IdeaProjects\\desafioCadastro\\src\\Project\\petsCadastrados");
+
+        List<Pet> resultados = Pet.buscarPets(pets, tipoAnimal, criterio1, valor1, criterio2, valor2);
+
+        if (resultados.isEmpty()) {
+            System.out.println("Nenhum pet encontrado com os critérios informados.");
+        } else {
+            for (int i = 0; i < resultados.size(); i++) {
+                System.out.println(resultados.get(i).formatarParaLista(i + 1));
+            }
+        }
 
     }
+    public static void listarTodosPetsFormatado(String caminhoPasta) {
+        // Lê todos os pets da pasta
+        List<Pet> pets = Pet.lerPetsDaPasta(caminhoPasta);
+
+        // Verifica se não encontrou nenhum pet
+        if (pets.isEmpty()) {
+            System.out.println("Nenhum pet cadastrado.");
+        } else {
+            // Exibe os pets no formato solicitado
+            for (int i = 0; i < pets.size(); i++) {
+                System.out.println(pets.get(i).formatarParaLista(i + 1)); // Formata e imprime
+            }
+        }
+    }
+
+
 }
